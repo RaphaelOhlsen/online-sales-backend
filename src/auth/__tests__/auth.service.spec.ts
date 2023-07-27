@@ -10,7 +10,6 @@ import { ReturnUserDto } from '../../user/dtos/returnUser.dto';
 describe('AuthService', () => {
   let service: AuthService;
   let userService: UserService;
-  let jwtService: JwtService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
