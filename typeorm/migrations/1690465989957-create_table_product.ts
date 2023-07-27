@@ -3,37 +3,49 @@ import {
   QueryRunner,
   Table,
   TableForeignKey,
-  TableIndex,
 } from 'typeorm';
 
-export class Migrate1689904811970 implements MigrationInterface {
+export class createTableProduct1675766857443 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    // Cria a tabela 'product'
     await queryRunner.createTable(
       new Table({
-        name: 'city',
+        name: 'product',
         columns: [
           {
             name: 'id',
-            type: 'integer',
+            type: 'int',
             isPrimary: true,
             isGenerated: true,
             generationStrategy: 'increment',
-            unsigned: true,
           },
           {
-            name: 'state_id',
-            type: 'integer',
+            name: 'category_id',
+            type: 'int',
             isNullable: false,
           },
           {
             name: 'name',
             type: 'varchar',
+            length: '255',
+            isNullable: false,
+          },
+          {
+            name: 'price',
+            type: 'double precision',
+            isNullable: false,
+          },
+          {
+            name: 'image',
+            type: 'varchar',
+            length: '255',
             isNullable: false,
           },
           {
             name: 'created_at',
             type: 'timestamp',
             default: 'now()',
+            isNullable: false,
           },
           {
             name: 'updated_at',
@@ -44,23 +56,15 @@ export class Migrate1689904811970 implements MigrationInterface {
           },
         ],
       }),
-      true,
+      true, // Define "true" para criar também as chaves estrangeiras
     );
 
-    await queryRunner.createIndex(
-      'city',
-      new TableIndex({
-        name: 'IDX_CITY_NAME',
-        columnNames: ['name'],
-      }),
-    );
-
+    // Cria a chave estrangeira (foreign key) na tabela 'product' referenciando a tabela 'category'
     await queryRunner.createForeignKey(
-      'city',
+      'product',
       new TableForeignKey({
-        name: 'FK_CITY_STATE',
-        columnNames: ['state_id'],
-        referencedTableName: 'state',
+        columnNames: ['category_id'],
+        referencedTableName: 'category',
         referencedColumnNames: ['id'],
         onDelete: 'CASCADE',
       }),
@@ -68,8 +72,10 @@ export class Migrate1689904811970 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropForeignKey('city', 'FK_CITY_STATE');
-    await queryRunner.dropIndex('city', 'IDX_CITY_NAME');
-    await queryRunner.dropTable('city');
+    // Remove a chave estrangeira na tabela 'product'
+    await queryRunner.dropForeignKey('product', 'FK_product_category');
+
+    // Remove a tabela 'product'
+    await queryRunner.dropTable('product');
   }
 }

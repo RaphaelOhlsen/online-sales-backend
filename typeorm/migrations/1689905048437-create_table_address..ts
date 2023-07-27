@@ -18,6 +18,7 @@ export class Migrate1689905048437 implements MigrationInterface {
             isPrimary: true,
             isGenerated: true,
             generationStrategy: 'increment',
+            unsigned: true,
           },
           {
             name: 'user_id',
@@ -27,6 +28,7 @@ export class Migrate1689905048437 implements MigrationInterface {
           {
             name: 'complement',
             type: 'varchar',
+            length: '255',
             isNullable: true,
           },
           {
@@ -37,6 +39,7 @@ export class Migrate1689905048437 implements MigrationInterface {
           {
             name: 'cep',
             type: 'varchar',
+            length: '9',
             isNullable: false,
           },
           {
@@ -53,6 +56,8 @@ export class Migrate1689905048437 implements MigrationInterface {
             name: 'updated_at',
             type: 'timestamp',
             default: 'now()',
+            onUpdate: 'now()',
+            isNullable: false,
           },
         ],
       }),

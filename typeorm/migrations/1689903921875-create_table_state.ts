@@ -12,10 +12,12 @@ export class Migrate1689903921875 implements MigrationInterface {
             isPrimary: true,
             isGenerated: true,
             generationStrategy: 'increment',
+            unsigned: true,
           },
           {
             name: 'name',
             type: 'varchar',
+            length: '60',
             isNullable: false,
           },
           {
@@ -28,11 +30,14 @@ export class Migrate1689903921875 implements MigrationInterface {
             name: 'created_at',
             type: 'timestamp',
             default: 'now()',
+            isNullable: false,
           },
           {
             name: 'updated_at',
             type: 'timestamp',
             default: 'now()',
+            onUpdate: 'now()',
+            isNullable: false,
           },
         ],
       }),
