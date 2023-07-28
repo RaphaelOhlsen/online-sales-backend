@@ -18,10 +18,10 @@ export class CategoryEntity {
   name: string;
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  createdAt?: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  updatedAt?: Date;
 
   @OneToMany(() => ProductEntity, (product: ProductEntity) => product.category)
   @JoinColumn({ name: 'id', referencedColumnName: 'categoryId' })

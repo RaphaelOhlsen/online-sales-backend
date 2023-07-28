@@ -1,9 +1,11 @@
+import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CategoryService } from '../category.service';
 import { CategoryEntity } from '../entities/category.entity';
-import { categoryMock } from '../__mocks__/categoryMock';
+import { categoryMock } from '../__mocks__/category.mock';
+import { createCategoryMock } from '../__mocks__/createCategory.mock';
 
 describe('CategoryService', () => {
   let service: CategoryService;
@@ -18,6 +20,7 @@ describe('CategoryService', () => {
           useValue: {
             save: jest.fn().mockResolvedValue(categoryMock),
             find: jest.fn().mockResolvedValue([categoryMock]),
+            findOne: jest.fn().mockResolvedValue(true),
           },
         },
       ],
@@ -46,15 +49,28 @@ describe('CategoryService', () => {
   });
 
   it('shoul return error in category exception list', async () => {
-    jest.spyOn(categoryRepository, 'find').mockRejectedValue(new Error());
+    jest.spyOn(categoryRepository, 'find').mockRejectedValueOnce(new Error());
     const categories = service.getAllCategories();
     expect(categories).rejects.toThrowError();
   });
-  // it('should create a category', async () => {
-  //   jest.spyOn(categoryRepository, 'create').mockResolvedValue(categoryMock);
 
-  //   const category = await service.createCategory(categoryMock);
+  it('should create a category', async () => {
+    jest.spyOn(categoryRepository, 'findOne').mockResolvedValueOnce(null);
+    const category = await service.createCategory(createCategoryMock);
 
-  //   expect(category).toBe(categoryMock);
+    expect(category).toBe(categoryMock);
+  });
+
+  it('should return error with exception when create a category', async () => {
+    jest.spyOn(categoryRepository, 'save').mockRejectedValue(new Error());
+    const category = service.createCategory(createCategoryMock);
+    expect(category).rejects.toThrowError();
+  });
+
+  // This test is disabled because it is not possible because checkCategoryByName is private
+
+  // it('throw ConflictException when category with the same name already exists', async () => {
+  //   const category = service.checkCategoryByName(categoryMock.name);
+  //   expect(category).rejects.toThrowError(ConflictException);
   // });
 });
