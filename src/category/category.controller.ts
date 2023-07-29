@@ -20,7 +20,7 @@ export class CategoryController {
     return returnCategories;
   }
 
-  // @Roles(UserType.Admin)
+  @Roles(UserType.Admin)
   @Post()
   createCategory(
     @Body() createCategory: CreateCategory,

@@ -19,7 +19,14 @@ export class CategoryService {
   private async checkCategoryByName(name: string): Promise<void> {
     const exist = await this.categoryRepository.findOne({ where: { name } });
     if (exist) {
-      throw new ConflictException('Category already exists');
+      throw new Error();
+    }
+  }
+
+  async checkCategoryById(id: number): Promise<void> {
+    const exist = await this.categoryRepository.findOne({ where: { id } });
+    if (!exist) {
+      throw new Error();
     }
   }
 
@@ -40,7 +47,11 @@ export class CategoryService {
       ...createCategory,
       name: createCategory.name.toLowerCase(),
     };
-    await this.checkCategoryByName(createCategory.name);
+
+    await this.checkCategoryByName(createCategory.name).catch(() => {
+      throw new ConflictException('Category already exists');
+    });
+
     const category = await this.categoryRepository.save(createCategory);
     return category;
   }

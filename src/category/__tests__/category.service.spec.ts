@@ -37,40 +37,42 @@ describe('CategoryService', () => {
     expect(categoryRepository).toBeDefined();
   });
 
-  it('should return all categories', async () => {
-    const categories = await service.getAllCategories();
-    expect(categories).toEqual([categoryMock]);
+  describe('Test getAllCategories', () => {
+    it('should return all categories', async () => {
+      const categories = await service.getAllCategories();
+      expect(categories).toEqual([categoryMock]);
+    });
+
+    it('shoul return error in category empity list', async () => {
+      jest.spyOn(categoryRepository, 'find').mockResolvedValue([]);
+      const categories = service.getAllCategories();
+      await expect(categories).rejects.toThrowError();
+    });
+
+    it('shoul return error in category exception list', async () => {
+      jest.spyOn(categoryRepository, 'find').mockRejectedValueOnce(new Error());
+      const categories = service.getAllCategories();
+      expect(categories).rejects.toThrowError();
+    });
   });
 
-  it('shoul return error in category empity list', async () => {
-    jest.spyOn(categoryRepository, 'find').mockResolvedValue([]);
-    const categories = service.getAllCategories();
-    await expect(categories).rejects.toThrowError();
+  describe('Test createCategory', () => {
+    it('should create a category', async () => {
+      jest.spyOn(categoryRepository, 'findOne').mockResolvedValueOnce(null);
+      const category = await service.createCategory(createCategoryMock);
+
+      expect(category).toBe(categoryMock);
+    });
+
+    it('should return error if exist category after save', async () => {
+      const category = service.createCategory(createCategoryMock);
+      expect(category).rejects.toThrowError(ConflictException);
+    });
+
+    it('should return error with exception when create a category', async () => {
+      jest.spyOn(categoryRepository, 'save').mockRejectedValueOnce(new Error());
+      const category = service.createCategory(createCategoryMock);
+      expect(category).rejects.toThrowError();
+    });
   });
-
-  it('shoul return error in category exception list', async () => {
-    jest.spyOn(categoryRepository, 'find').mockRejectedValueOnce(new Error());
-    const categories = service.getAllCategories();
-    expect(categories).rejects.toThrowError();
-  });
-
-  it('should create a category', async () => {
-    jest.spyOn(categoryRepository, 'findOne').mockResolvedValueOnce(null);
-    const category = await service.createCategory(createCategoryMock);
-
-    expect(category).toBe(categoryMock);
-  });
-
-  it('should return error with exception when create a category', async () => {
-    jest.spyOn(categoryRepository, 'save').mockRejectedValue(new Error());
-    const category = service.createCategory(createCategoryMock);
-    expect(category).rejects.toThrowError();
-  });
-
-  // This test is disabled because it is not possible because checkCategoryByName is private
-
-  // it('throw ConflictException when category with the same name already exists', async () => {
-  //   const category = service.checkCategoryByName(categoryMock.name);
-  //   expect(category).rejects.toThrowError(ConflictException);
-  // });
 });

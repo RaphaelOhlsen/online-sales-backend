@@ -12,9 +12,9 @@ import { createAddressMock } from '../__mocks__/createAddress.mock';
 
 describe('AddressService', () => {
   let service: AddressService;
-  let addressRepository: Repository<AddressEntity>;
   let userService: UserService;
   let cityService: CityService;
+  let addressRepository: Repository<AddressEntity>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
