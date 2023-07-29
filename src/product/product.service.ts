@@ -1,12 +1,14 @@
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CategoryService } from '../category/category.service';
 import { CreateProductDto } from './dtos/createProduct.dto';
+import { UpdateproductDto } from './dtos/updateProduct.dto';
 import { ProductEntity } from './entities/product.entity';
 
 @Injectable()
@@ -24,12 +26,14 @@ export class ProductService {
     }
   }
 
-  async checkProductExists(id: number): Promise<void> {
+  async checkProductExists(id: number): Promise<ProductEntity> {
     const exist = await this.productRepository.findOne({ where: { id } });
 
     if (!exist) {
       throw new NotFoundException(`Product #${id} not found`);
     }
+
+    return exist;
   }
 
   async getAllProducts(): Promise<ProductEntity[]> {
@@ -61,6 +65,26 @@ export class ProductService {
 
     const product = await this.productRepository.save(createProductDto);
     return product;
+  }
+
+  async updateProduct(
+    updateProductDto: UpdateproductDto,
+    productId: number,
+  ): Promise<ProductEntity> {
+    const { categoryId } = updateProductDto;
+    await this.checkProductExists(productId);
+    await this.categoryService.checkCategoryById(categoryId).catch(() => {
+      throw new ConflictException('Category not found');
+    });
+    await this.productRepository
+      .update(productId, {
+        ...updateProductDto,
+      })
+      .catch(() => {
+        throw new InternalServerErrorException();
+      });
+
+    return this.checkProductExists(productId);
   }
 
   async deleteProduct(id: number): Promise<boolean> {
