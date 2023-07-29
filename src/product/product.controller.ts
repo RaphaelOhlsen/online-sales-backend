@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { Roles } from '../decorators/roles.decorator';
 import { UserType } from '../user/enum/userType.enum';
 import { CreateProductDto } from './dtos/createProduct.dto';
@@ -20,12 +20,20 @@ export class ProductController {
     return returnProducts;
   }
 
-  // @Roles(UserType.Admin, UserType.User)
+  // @Roles(UserType.Admin)
   @Post()
   async createProduct(
     @Body() createProductDto: CreateProductDto,
   ): Promise<ProductEntity> {
     const product = this.productService.createProduct(createProductDto);
     return product;
+  }
+
+  // @Roles(UserType.Admin)
+  @Delete('/:id')
+  async deleteProduct(@Param('id') id: number) {
+    return {
+      success: await this.productService.deleteProduct(id),
+    };
   }
 }

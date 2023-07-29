@@ -7,7 +7,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CategoryService } from '../category/category.service';
 import { CreateProductDto } from './dtos/createProduct.dto';
-import { ReturnProduct } from './dtos/returnProduct.dto';
 import { ProductEntity } from './entities/product.entity';
 
 @Injectable()
@@ -22,6 +21,14 @@ export class ProductService {
     const exist = await this.productRepository.findOne({ where: { name } });
     if (exist) {
       throw new Error();
+    }
+  }
+
+  async checkProductExists(id: number): Promise<void> {
+    const exist = await this.productRepository.findOne({ where: { id } });
+
+    if (!exist) {
+      throw new NotFoundException(`Product #${id} not found`);
     }
   }
 
@@ -54,5 +61,11 @@ export class ProductService {
 
     const product = await this.productRepository.save(createProductDto);
     return product;
+  }
+
+  async deleteProduct(id: number): Promise<boolean> {
+    await this.checkProductExists(id);
+    await this.productRepository.delete(id);
+    return true;
   }
 }

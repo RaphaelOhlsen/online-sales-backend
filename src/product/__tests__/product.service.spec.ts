@@ -29,6 +29,7 @@ describe('ProductService', () => {
             save: jest.fn().mockResolvedValue(returnProductMock),
             find: jest.fn().mockResolvedValue([productMock]),
             findOne: jest.fn().mockResolvedValue(true),
+            delete: jest.fn().mockResolvedValue(true),
           },
         },
       ],
@@ -92,6 +93,26 @@ describe('ProductService', () => {
       jest.spyOn(productRepository, 'save').mockRejectedValueOnce(new Error());
       const product = service.createProduct(createProductMock);
       expect(product).rejects.toThrowError();
+    });
+  });
+  describe('Test deleteProduct', () => {
+    it('should delete a product', async () => {
+      const deleted = await service.deleteProduct(productMock.id);
+      expect(deleted).toEqual(true);
+    });
+
+    it('should return error if product not found', async () => {
+      jest.spyOn(productRepository, 'findOne').mockResolvedValueOnce(undefined);
+      const deleted = service.deleteProduct(1);
+      expect(deleted).rejects.toThrowError('Product #1 not found');
+    });
+
+    it('should return error with exception when delete a product', async () => {
+      jest
+        .spyOn(productRepository, 'delete')
+        .mockRejectedValueOnce(new Error());
+      const deleted = service.deleteProduct(1);
+      expect(deleted).rejects.toThrowError();
     });
   });
 });
