@@ -28,8 +28,8 @@ export class CityService {
     return this.cacheService.getCache<CityEntity[]>(key, findCities);
   }
 
-  async getCityById(cityId: number): Promise<CityEntity> {
-    await this.checkCityExists(cityId);
-    return this.cityRepository.findOne({ where: { id: cityId } });
+  async getCityById(id: number): Promise<CityEntity> {
+    await this.checkCityExists(id);
+    return this.cityRepository.findOne({ where: { id } });
   }
 }

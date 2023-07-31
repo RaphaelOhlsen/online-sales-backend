@@ -6,6 +6,10 @@ import { UserEntity } from '../entities/user.entity';
 import { UserService } from '../user.service';
 import { userEntityMock } from '../__mocks__/user.mock';
 import { createUserMock } from '../__mocks__/createUser.mock';
+import {
+  updateInvalidPasswordMock,
+  updateValidPasswordMock,
+} from '../__mocks__/password.mock';
 
 describe('UserService', () => {
   let service: UserService;
@@ -37,48 +41,85 @@ describe('UserService', () => {
     expect(userRepository).toBeDefined();
   });
 
-  it('should be able to get a user by email', async () => {
-    const user = await service.getUserByEmail(userEntityMock.email);
-    expect(user).toEqual(userEntityMock);
+  describe('test getUserByEmail', () => {
+    it('should be able to get a user by email', async () => {
+      const user = await service.getUserByEmail(userEntityMock.email);
+      expect(user).toEqual(userEntityMock);
+    });
+
+    it('should able to return error in get a user by email sending undefined request', async () => {
+      jest.spyOn(userRepository, 'findOne').mockResolvedValueOnce(undefined);
+      expect(
+        service.getUserByEmail(userEntityMock.email),
+      ).rejects.toThrowError();
+    });
+
+    it('should able to return error in get a user by email (error DB)', async () => {
+      jest.spyOn(userRepository, 'findOne').mockRejectedValueOnce(new Error());
+      expect(service.getUserByEmail(userEntityMock.email)).rejects.toThrow(
+        Error,
+      );
+    });
   });
 
-  it('should able to return error in get a user by email sending undefined request', async () => {
-    jest.spyOn(userRepository, 'findOne').mockResolvedValueOnce(undefined);
-    expect(service.getUserByEmail(userEntityMock.email)).rejects.toThrowError();
+  describe('test getUserById', () => {
+    it('should be able to get a user by id', async () => {
+      const user = await service.getUserById(userEntityMock.id);
+      expect(user).toEqual(userEntityMock);
+    });
+
+    it('should able to return error in get a user by id', async () => {
+      jest.spyOn(userRepository, 'findOne').mockResolvedValueOnce(undefined);
+      expect(service.getUserById(userEntityMock.id)).rejects.toThrow(Error);
+    });
+
+    it('should able to return error in get a user by id (error DB)', async () => {
+      jest.spyOn(userRepository, 'findOne').mockRejectedValueOnce(new Error());
+      expect(service.getUserById(userEntityMock.id)).rejects.toThrow(Error);
+    });
+
+    it('should be able to get a user by id whith relations', async () => {
+      const user = await service.getUserByIdUsingRelations(userEntityMock.id);
+      expect(user).toEqual(userEntityMock);
+    });
   });
 
-  it('should able to return error in get a user by email (error DB)', async () => {
-    jest.spyOn(userRepository, 'findOne').mockRejectedValueOnce(new Error());
-    expect(service.getUserByEmail(userEntityMock.email)).rejects.toThrow(Error);
+  describe('test createUser', () => {
+    it('should return error if user exist', async () => {
+      expect(service.createUser(createUserMock)).rejects.toThrowError();
+    });
+
+    it('should be able to return user if user not exist', async () => {
+      jest.spyOn(userRepository, 'findOne').mockResolvedValueOnce(undefined);
+      const user = await service.createUser(createUserMock);
+      expect(user).toEqual(userEntityMock);
+    });
   });
 
-  it('should be able to get a user by id', async () => {
-    const user = await service.getUserById(userEntityMock.id);
-    expect(user).toEqual(userEntityMock);
-  });
+  describe('test update user password', () => {
+    it('should be able to update user password', async () => {
+      const user = await service.updatePasswordUser(
+        updateValidPasswordMock,
+        userEntityMock.id,
+      );
+      expect(user).toEqual(userEntityMock);
+    });
 
-  it('should able to return error in get a user by id', async () => {
-    jest.spyOn(userRepository, 'findOne').mockResolvedValueOnce(undefined);
-    expect(service.getUserById(userEntityMock.id)).rejects.toThrow(Error);
-  });
+    it('should be able to return error if send a invalid password', async () => {
+      const user = service.updatePasswordUser(
+        updateInvalidPasswordMock,
+        userEntityMock.id,
+      );
+      expect(user).rejects.toThrowError('Invalid password');
+    });
 
-  it('should able to return error in get a user by id (error DB)', async () => {
-    jest.spyOn(userRepository, 'findOne').mockRejectedValueOnce(new Error());
-    expect(service.getUserById(userEntityMock.id)).rejects.toThrow(Error);
-  });
-
-  it('should be able to get a user by id whith relations', async () => {
-    const user = await service.getUserByIdUsingRelations(userEntityMock.id);
-    expect(user).toEqual(userEntityMock);
-  });
-
-  it('should return error if user exist', async () => {
-    expect(service.createUser(createUserMock)).rejects.toThrowError();
-  });
-
-  it('should be able to return user if user not exist', async () => {
-    jest.spyOn(userRepository, 'findOne').mockResolvedValueOnce(undefined);
-    const user = await service.createUser(createUserMock);
-    expect(user).toEqual(userEntityMock);
+    it('should be able to return error if user not exist', async () => {
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
+      const user = service.updatePasswordUser(
+        updateValidPasswordMock,
+        userEntityMock.id,
+      );
+      expect(user).rejects.toThrowError();
+    });
   });
 });

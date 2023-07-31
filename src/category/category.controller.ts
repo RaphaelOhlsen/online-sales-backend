@@ -6,11 +6,11 @@ import { CreateCategory } from './dtos/createCategory.dto';
 import { ReturnCategory } from './dtos/returnCategory.dto';
 import { CategoryEntity } from './entities/category.entity';
 
-@Roles(UserType.Admin, UserType.User)
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
+  // @Roles(UserType.Admin, UserType.User)
   @Get()
   async getAllCategories(): Promise<ReturnCategory[]> {
     const categories = await this.categoryService.getAllCategories();
@@ -20,7 +20,7 @@ export class CategoryController {
     return returnCategories;
   }
 
-  @Roles(UserType.Admin)
+  // @Roles(UserType.Admin)
   @Post()
   createCategory(
     @Body() createCategory: CreateCategory,

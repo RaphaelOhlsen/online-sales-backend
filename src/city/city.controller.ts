@@ -1,4 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
+import { Roles } from '../decorators/roles.decorator';
+import { UserType } from '../user/enum/userType.enum';
 import { CityService } from './city.service';
 import { CityEntity } from './entities/city.entity';
 
